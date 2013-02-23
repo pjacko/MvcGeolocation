@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<div>
+    <span>Latidude</span>
+    <input type="text" id ="lat" />
+</div>
+
+<div>
+    <span>Longitude</span>
+    <input type="text" id ="lon" />
+</div>
+
+<div id="geo-wrapper" style="width:900px;height:600px;"></div>
+
+<script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrVI0ZIrpj5CzKMy1e2tdnGfP1_50I5fk&sensor=false">
+    </script>
+
+<script type="text/javascript">
+
+    $(function () {
+               
+        if (Modernizr.geolocation) {
+            var showPosition = function (position) {
+                var coordinates = position.coords;
+                var lat = coordinates.latitude;
+                var lon = coordinates.longitude;
+                $('#lat').val(lat);
+                $('#lon').val(lon);
+                
+                var mapOptions = {
+                    center: new google.maps.LatLng(lat, lon),
+                    zoom: 8,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+
+
+                var map = new google.maps.Map(document.getElementById('geo-wrapper'), mapOptions);
+            };
+
+            var positionError = function (positionError) {
+                // Code = 1: Permission denied
+                // Code = 2: Position unavailable
+                // Code = 1: Timeout
+                
+                if (positionError.code == 1) {
+                    // user said no
+                }
+                alert('Ooops! Error: ' + positionError.code);
+            };
+
+            navigator.geolocation.getCurrentPosition(showPosition, positionError);
+        } else {
+            // no native support, implement fallback
+            // To Do: Ask for zipcode or address, or allow option to not use geolocation
+        }
+        
+    });
+   
+
+</script>
