@@ -14,32 +14,59 @@
     <input type="text" id ="lon" />
 </div>
 
-<div id="geo-wrapper" style="width:900px;height:600px;"></div>
+<h2>Simple Map</h2>
+<div id="simpleMap" style="width:900px;height:400px;"></div>
+
+<h2>Map with my address plotted</h2>
+<div id="myAddressPlottedMap" style="width:900px;height:400px;"></div>
 
 <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrVI0ZIrpj5CzKMy1e2tdnGfP1_50I5fk&sensor=false">
-    </script>
+</script>
 
 <script type="text/javascript">
 
+    var simpleMap;
+    var myAddressPlottedMap;
+
+    var geocoder;
+    var infoWindow = new google.maps.InfoWindow();
+
     $(function () {
-               
+              
         if (Modernizr.geolocation) {
             var showPosition = function (position) {
                 var coordinates = position.coords;
                 var lat = coordinates.latitude;
                 var lon = coordinates.longitude;
+                
                 $('#lat').val(lat);
                 $('#lon').val(lon);
+
+                var latLng = new google.maps.LatLng(lat, lon);
                 
                 var mapOptions = {
-                    center: new google.maps.LatLng(lat, lon),
-                    zoom: 8,
+                    center: latLng,
+                    zoom: 14,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
 
+                simpleMap = new google.maps.Map(document.getElementById('simpleMap'), mapOptions);
+                myAddressPlottedMap = new google.maps.Map(document.getElementById('myAddressPlottedMap'), mapOptions);
 
-                var map = new google.maps.Map(document.getElementById('geo-wrapper'), mapOptions);
+                geocoder = new google.maps.Geocoder();
+                geocoder.geocode({location: latLng}, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var marker = new google.maps.Marker({
+                            map: myAddressPlottedMap,
+                            position: results[0].geometry.location
+                        });
+                    } else {
+                        alert("Geocode was not successful for the following reason: " + status);
+                    }
+                });
+                
+
             };
 
             var positionError = function (positionError) {
@@ -54,12 +81,12 @@
             };
 
             navigator.geolocation.getCurrentPosition(showPosition, positionError);
+            
         } else {
             // no native support, implement fallback
             // To Do: Ask for zipcode or address, or allow option to not use geolocation
         }
         
-    });
-   
+    });   
 
 </script>
