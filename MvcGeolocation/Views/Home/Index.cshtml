@@ -20,6 +20,9 @@
 <h2>Map with my address plotted</h2>
 <div id="myAddressPlottedMap" style="width:900px;height:400px;"></div>
 
+<h2>Map with multiple addresses plotted</h2>
+<div id="multipleAddressPlottedMap" style="width:900px;height:400px;"></div>
+
 <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrVI0ZIrpj5CzKMy1e2tdnGfP1_50I5fk&sensor=false">
 </script>
@@ -28,14 +31,23 @@
 
     var simpleMap;
     var myAddressPlottedMap;
+    var multipleAddressPlottedMap;
 
     var geocoder;
     var infoWindow = new google.maps.InfoWindow();
 
+    var latLonCollection = [];
+    latLonCollection.push(new google.maps.LatLng(40.64510, -73.94500));
+    latLonCollection.push(new google.maps.LatLng(40.67000, -73.93660));
+    latLonCollection.push(new google.maps.LatLng(40.70950, -73.95630));
+
+     
     $(function () {
               
         if (Modernizr.geolocation) {
-            var showPosition = function (position) {
+            
+            var showMap = function (position) {
+                
                 var coordinates = position.coords;
                 var lat = coordinates.latitude;
                 var lon = coordinates.longitude;
@@ -44,28 +56,58 @@
                 $('#lon').val(lon);
 
                 var latLng = new google.maps.LatLng(lat, lon);
+                console.log(latLng);
                 
                 var mapOptions = {
                     center: latLng,
-                    zoom: 14,
+                    zoom: 12,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
 
                 simpleMap = new google.maps.Map(document.getElementById('simpleMap'), mapOptions);
                 myAddressPlottedMap = new google.maps.Map(document.getElementById('myAddressPlottedMap'), mapOptions);
+                multipleAddressPlottedMap = new google.maps.Map(document.getElementById('multipleAddressPlottedMap'), mapOptions);
 
-                geocoder = new google.maps.Geocoder();
+                var marker = new google.maps.Marker({
+                    map: myAddressPlottedMap,
+                    position: latLng,
+                    title: 'You are here!'
+                });            
+
+                // click marker listener
+                google.maps.event.addListener(marker, 'click', function() {
+                    alert('clicked marker!');
+                });
+                
+                // click simple map listener, add a marker to simple maps clicks
+                google.maps.event.addListener(simpleMap, 'click', function(event) {
+                    var marker = new google.maps.Marker({
+                        position: event.latLng,
+                        map: simpleMap
+                    });
+                });
+
+                $.each(latLonCollection, function () {
+                    var marker2 = new google.maps.Marker({
+                        map: multipleAddressPlottedMap,
+                        position: this,
+                    });
+                });
+
+
+                /* geocoder = new google.maps.Geocoder();
                 geocoder.geocode({location: latLng}, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
                         var marker = new google.maps.Marker({
                             map: myAddressPlottedMap,
-                            position: results[0].geometry.location
+                            position: results[0].geometry.location,
+                            title: 'You are here!'
                         });
                     } else {
                         alert("Geocode was not successful for the following reason: " + status);
                     }
-                });
-                
+                });*/
+
 
             };
 
@@ -80,7 +122,7 @@
                 alert('Ooops! Error: ' + positionError.code);
             };
 
-            navigator.geolocation.getCurrentPosition(showPosition, positionError);
+            navigator.geolocation.getCurrentPosition(showMap, positionError);
             
         } else {
             // no native support, implement fallback
