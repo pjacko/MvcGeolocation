@@ -4,14 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
-    @*@Styles.Render("~/Content/css")*@
+    @Styles.Render("~/bundles/bootstrap", "~/bundles/css", "~/Content/themes/base/css")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
 </head>
 <body>
-    @RenderBody()
-
-    
+    <div class="container">
+        <section class="row-fluid">
+            <ul id="topMenu" class="nav nav-pills">
+                <li class="home">@Html.ActionLink("Home", "Index", "Home")</li>
+                <li class="places">@Html.ActionLink("Places", "Places", "Home")</li>
+            </ul>
+            @RenderBody()
+        </section>
+    </div>
     @RenderSection("scripts", required: false)
 </body>
 </html>

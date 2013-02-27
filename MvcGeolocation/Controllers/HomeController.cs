@@ -13,7 +13,7 @@ namespace MvcGeolocation.Controllers
             return View();
         }
 
-        public ActionResult Test()
+        public ActionResult Places()
         {
             return View();
         }

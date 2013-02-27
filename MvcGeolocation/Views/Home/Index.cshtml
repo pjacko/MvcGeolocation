@@ -1,8 +1,8 @@
 ﻿@{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Map Index";
 }
 
-<h2>Index</h2>
+<h2>@ViewBag.Title</h2>
 
 <div>
     <span>Latidude</span>
@@ -128,7 +128,9 @@
             // no native support, implement fallback
             // To Do: Ask for zipcode or address, or allow option to not use geolocation
         }
-        
+
+        $('#topMenu .home').addClass('active');
+
     });   
 
 </script>
