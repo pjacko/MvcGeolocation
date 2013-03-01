@@ -4,6 +4,73 @@
 
 <h2>@ViewBag.Title</h2>
 
+<div id="map"></div>
+
+<div id="searchResults"></div>
+
+<script id="searchResultsTemplate" type="text/x-jsrender">
+    <ul>
+        <li>{{>name}}</li>
+    </ul>
+</script>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleApiKey&sensor=false&libraries=places">
+</script>
+
+@Scripts.Render("~/bundles/jsrender")
+
 <script type="text/javascript">
+
+    var map;
+    var service;
+    
+    var getNearbyPlaces = function(position) {
+        var coordinates = position.coords;
+        var lat = coordinates.latitude;
+        var lon = coordinates.longitude;
+        
+        var latLng = new google.maps.LatLng(lat, lon);
+        map = new google.maps.Map(document.getElementById('map'), {
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            center: latLng,
+            zoom: 15
+        });
+        
+        var request = {
+            location: latLng,
+            radius: '500',
+            types: ['store']
+        };
+        
+        service = new google.maps.places.PlacesService(map);
+        service.nearbySearch(request, placesSearchCallback);
+    };
+
+    var placesSearchCallback = function (results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            /*for (var i = 0; i < results.length; i++) {
+                var place = results[i];
+                alert(place.name);
+            }*/
+            bindPlaces(results);
+        }
+    };
+
+    var positionError = function() {
+        alert("Problem acquiring position");
+    };
+    
+    var bindPlaces = function(results) {
+        $('#searchResults').html($("#searchResultsTemplate").render(results));
+    };
+
+    if (Modernizr.geolocation) {
+        navigator.geolocation.getCurrentPosition(getNearbyPlaces, positionError);
+            
+    } else {
+        // no native support, implement fallback
+        // To Do: Ask for zipcode or address, or allow option to not use geolocation
+    }
+
     $('#topMenu .places').addClass('active');
 </script>
