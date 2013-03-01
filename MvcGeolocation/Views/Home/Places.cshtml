@@ -9,12 +9,18 @@
 <div id="searchResults"></div>
 
 <script id="searchResultsTemplate" type="text/x-jsrender">
-    <ul>
-        <li>{{>name}}</li>
+    <ul class="no-bullets">
+        <li>
+            <h5>{{>name}}</h5>
+            <div>{{>vicinity}}</div>
+            <div>{{>~distance(geometry.location)}}</div>
+            
+        </li>
     </ul>
 </script>
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleApiKey&sensor=false&libraries=places">
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleApiKey&sensor=false&libraries=geometry,places">
 </script>
 
 @Scripts.Render("~/bundles/jsrender")
@@ -23,23 +29,25 @@
 
     var map;
     var service;
+    var myLatLng;
     
     var getNearbyPlaces = function(position) {
         var coordinates = position.coords;
         var lat = coordinates.latitude;
         var lon = coordinates.longitude;
         
-        var latLng = new google.maps.LatLng(lat, lon);
+        myLatLng = new google.maps.LatLng(lat, lon);
         map = new google.maps.Map(document.getElementById('map'), {
             mapTypeId: google.maps.MapTypeId.ROADMAP,
-            center: latLng,
+            center: myLatLng,
             zoom: 15
         });
         
         var request = {
-            location: latLng,
-            radius: '500',
-            types: ['store']
+            location: myLatLng,
+            //radius: '500',
+            types: ['amusement_park', 'aquarium', 'veterinary_care', 'zoo'],
+            rankBy: google.maps.places.RankBy.DISTANCE
         };
         
         service = new google.maps.places.PlacesService(map);
@@ -71,6 +79,17 @@
         // no native support, implement fallback
         // To Do: Ask for zipcode or address, or allow option to not use geolocation
     }
+    
+    $.views.helpers({
+
+        distance: function (location) {
+           
+            var distanceInMeters = google.maps.geometry.spherical.computeDistanceBetween(myLatLng, location);
+            var distanceInMiles = distanceInMeters *= 0.000621371192;
+            return distanceInMiles.toFixed(2) + ' miles';
+        }
+    });
+
 
     $('#topMenu .places').addClass('active');
 </script>
